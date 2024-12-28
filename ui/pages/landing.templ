@@ -1,52 +1,127 @@
 package pages
 
 import (
-	"github.com/axzilla/templui-quickstart/ui/layouts"
+	"fmt"
 	"github.com/axzilla/templui/pkg/components"
+	"github.com/axzilla/templui-quickstart/ui/layouts"
+	"github.com/axzilla/templui-quickstart/store"
 )
+
+templ LoadingIcon(id string) {
+	<div id={ id } class="htmx-indicator w-0 h-0 htmx-request:w-5 htmx-request:h-5 transition-all duration-200">
+		<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+			<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+		</svg>
+	</div>
+}
+
+templ LoadingBar() {
+	<div class="fixed inset-x-0 top-0 z-50">
+		<div id="global-loading" class="htmx-indicator">
+			<div class="h-1 w-full bg-primary/20">
+				<div class="h-1 bg-primary animate-[loading_2s_ease-in-out_infinite]"></div>
+			</div>
+		</div>
+	</div>
+}
+
+templ UserModalBody() {
+	<div
+		hx-get="/api/users"
+		hx-trigger="intersect once"
+		hx-swap="innerHTML"
+		hx-indicator="#users-loading"
+	>
+		<div id="users-loading" class="flex justify-center p-4">
+			<div class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+		</div>
+	</div>
+}
+
+templ UserListView(users []store.User) {
+	<div class="flex flex-col gap-3">
+		for _, user := range users {
+			<div id={ "user-" + fmt.Sprint(user.ID) } class="flex items-center justify-between p-3 bg-white rounded-lg shadow">
+				<div>
+					<p class="font-bold">{ user.Username }</p>
+					<p class="text-muted-foreground">{ user.Email }</p>
+				</div>
+				// Delete Button opens the specific modal of this user
+				@components.ModalTrigger("delete-modal-" + fmt.Sprint(user.ID)) {
+					@components.Button(components.ButtonProps{
+						Text:    "Delete",
+						Variant: components.ButtonVariantDestructive,
+					})
+				}
+				// Seems redundant, but it's not. The modal is actually defined here. Every user has its own modal.
+				@components.Modal(components.ModalProps{ID: "delete-modal-" + fmt.Sprint(user.ID), Class: "max-w-md"}) {
+					@components.ModalHeader() {
+						Delete { user.Username }
+					}
+					@components.ModalBody() {
+						Are you sure you want to delete this user?
+					}
+					@components.ModalFooter() {
+						<div class="flex gap-2">
+							@components.ModalClose("delete-modal-" + fmt.Sprint(user.ID)) {
+								@components.Button(components.ButtonProps{Text: "Cancel"})
+							}
+							<div class="relative inline-block">
+								@components.Button(components.ButtonProps{
+									Text:    "Delete",
+									Variant: components.ButtonVariantDestructive,
+									Attributes: templ.Attributes{
+										"hx-delete":       "/api/users/" + fmt.Sprint(user.ID),
+										"hx-target":       "#user-" + fmt.Sprint(user.ID),
+										"hx-swap":         "outerHTML",
+										"hx-disabled-elt": "this",
+										"hx-indicator":    "#delete-spinner-" + fmt.Sprint(user.ID),
+									},
+								})
+								<div
+									id={ "delete-spinner-" + fmt.Sprint(user.ID) }
+									class="htmx-indicator absolute inset-0 flex items-center justify-center bg-destructive/10 rounded-md pointer-events-none"
+								>
+									<svg class="animate-spin h-5 w-5 text-destructive" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+										<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+										<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									</svg>
+								</div>
+							</div>
+						</div>
+					}
+				}
+			</div>
+		}
+	</div>
+}
 
 templ Landing() {
 	@layouts.BaseLayout() {
 		<div class="flex flex-col gap-8 h-screen items-center justify-center px-4">
 			<div class="text-center">
-				<h1 class="text-4xl font-bold mb-3">🚀 Welcome to TemplUI</h1>
+				<h1 class="text-4xl font-bold mb-3">🚀 User Management</h1>
 				<p class="text-muted-foreground text-lg max-w-lg">
-					Your quickstart template is ready! Here are some common questions to help you get started.
+					Manage your users with this simple interface.
 				</p>
 			</div>
-			@components.Accordion(components.AccordionProps{
-				Items: []components.AccordionItem{
-					{
-						ID:      "structure",
-						Trigger: templ.Raw("Where should I add my components?"),
-						Content: templ.Raw("Check out the 'components' directory for your custom components. The 'pages' directory is for your page templates, and 'layouts' for your layout templates."),
-					},
-					{
-						ID:      "tailwind",
-						Trigger: templ.Raw("My Tailwind styles aren't updating?"),
-						Content: templ.Raw("Run 'make tailwind' separately or ensure 'make dev' is running correctly. Also verify your tailwind.config.js has the correct content paths including your GOPATH for TemplUI components."),
-					},
-					{
-						ID:      "new-page",
-						Trigger: templ.Raw("How do I add a new page?"),
-						Content: templ.Raw("Create a new .templ file in the 'pages' directory, use the BaseLayout component, and add your route in main.go. Check the existing pages for examples."),
-					},
-					{
-						ID:      "development",
-						Trigger: templ.Raw("Development server issues?"),
-						Content: templ.Raw("The 'make dev' command starts all necessary processes. If you see errors, try running the commands separately: 'make templ' for template generation, 'make server' for the Go server, and 'make tailwind' for CSS compilation."),
-					},
-					{
-						ID:      "production",
-						Trigger: templ.Raw("Ready to deploy?"),
-						Content: templ.Raw("Use the included Dockerfile to build your application: 'docker build -t myapp .' and then 'docker run -p 8090:8090 myapp'. The container includes all necessary build steps."),
-					},
-				},
-				Class: "w-full max-w-xl",
-			})
-			<div class="text-center text-sm text-muted-foreground">
-				<p>Need more help? Check out the <a href="https://templui.io" class="text-primary hover:underline">documentation</a> 📚</p>
-			</div>
+			@components.ModalTrigger("default-modal") {
+				@components.Button(components.ButtonProps{Text: "Show Users"})
+			}
+			@components.Modal(components.ModalProps{ID: "default-modal", Class: "max-w-md"}) {
+				@components.ModalHeader() {
+					User Management
+				}
+				@components.ModalBody() {
+					@UserModalBody()
+				}
+				@components.ModalFooter() {
+					@components.ModalClose("default-modal") {
+						@components.Button(components.ButtonProps{Text: "Close"})
+					}
+				}
+			}
 		</div>
 	}
 }
