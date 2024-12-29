@@ -885,10 +885,6 @@ body {
   height: 1rem;
 }
 
-.h-0 {
-  height: 0px;
-}
-
 .h-1 {
   height: 0.25rem;
 }
@@ -975,10 +971,6 @@ body {
 
 .min-h-screen {
   min-height: 100vh;
-}
-
-.w-0 {
-  width: 0px;
 }
 
 .w-1\/3 {

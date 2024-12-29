@@ -2,14 +2,18 @@ package pages
 
 import (
 	"fmt"
-	"github.com/axzilla/templui/pkg/components"
-	"github.com/axzilla/templui-quickstart/ui/layouts"
 	"github.com/axzilla/templui-quickstart/store"
+	"github.com/axzilla/templui-quickstart/ui/layouts"
+	"github.com/axzilla/templui/pkg/components"
+	"strconv"
 )
 
 templ LoadingIcon(id string) {
-	<div id={ id } class="htmx-indicator w-0 h-0 htmx-request:w-5 htmx-request:h-5 transition-all duration-200">
-		<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+	<div
+		id={ id }
+		class="htmx-indicator absolute inset-0 flex items-center justify-center bg-destructive/10 rounded-md pointer-events-none"
+	>
+		<svg class="animate-spin h-5 w-5 text-destructive" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 			<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 		</svg>
@@ -39,60 +43,97 @@ templ UserModalBody() {
 	</div>
 }
 
+templ CustomScript() {
+	{{ handle := templ.NewOnceHandle() }}
+	@handle.Once() {
+		<script nonce={ templ.GetNonce(ctx) }>
+            Alpine.data('custom', () => ({
+                currentUserId: null,
+                currentUsername: null,
+                confirm(event) {
+                    console.log("confirm called", event)
+                    const target = event.target.closest('button')
+					console.log("User ID:", target.getAttribute('data-user-id'))
+                    this.currentUserId = target.getAttribute('data-user-id')
+                    this.currentUsername = target.getAttribute('data-username')
+                    this.$dispatch('open-modal', { 
+                        id: 'delete-confirmation-modal'
+                    })
+                },
+                handleDelete(event) {
+                    console.log("handleDelete called", event)
+                    this.$dispatch('close-modal', { 
+                        id: 'delete-confirmation-modal'
+                    })
+                    console.log("Deleting user with ID:", this.currentUserId)
+                    const deleteButton = document.querySelector(`button[data-user-id="${this.currentUserId}"][hx-delete]`)
+                    if (deleteButton) {
+                        console.log("Found button:", deleteButton)
+                        htmx.trigger(deleteButton, 'confirmed')
+                    } else {
+                        console.log("Button not found for ID:", this.currentUserId)
+                    }
+                }
+            }))
+        </script>
+	}
+}
+
 templ UserListView(users []store.User) {
-	<div class="flex flex-col gap-3">
+	@CustomScript()
+	<div
+		x-data="custom"
+		class="flex flex-col gap-3"
+	>
 		for _, user := range users {
 			<div id={ "user-" + fmt.Sprint(user.ID) } class="flex items-center justify-between p-3 bg-white rounded-lg shadow">
 				<div>
 					<p class="font-bold">{ user.Username }</p>
 					<p class="text-muted-foreground">{ user.Email }</p>
+					<p class="text-muted-foreground">ID: { strconv.Itoa(user.ID) }</p>
 				</div>
-				// Delete Button opens the specific modal of this user
-				@components.ModalTrigger("delete-modal-" + fmt.Sprint(user.ID)) {
+				<div class="relative">
 					@components.Button(components.ButtonProps{
 						Text:    "Delete",
 						Variant: components.ButtonVariantDestructive,
+						Attributes: templ.Attributes{
+							"data-user-id":    fmt.Sprint(user.ID),
+							"data-username":   user.Username,
+							"hx-delete":       "/api/users/" + fmt.Sprint(user.ID),
+							"hx-target":       "#user-" + fmt.Sprint(user.ID),
+							"hx-swap":         "outerHTML",
+							"hx-trigger":      "confirmed",
+							"@click":          "confirm",
+							"hx-indicator":    "#delete-spinner-" + fmt.Sprint(user.ID),
+							"hx-disabled-elt": "this",
+						},
 					})
-				}
-				// Seems redundant, but it's not. The modal is actually defined here. Every user has its own modal.
-				@components.Modal(components.ModalProps{ID: "delete-modal-" + fmt.Sprint(user.ID), Class: "max-w-md"}) {
-					@components.ModalHeader() {
-						Delete { user.Username }
-					}
-					@components.ModalBody() {
-						Are you sure you want to delete this user?
-					}
-					@components.ModalFooter() {
-						<div class="flex gap-2">
-							@components.ModalClose("delete-modal-" + fmt.Sprint(user.ID)) {
-								@components.Button(components.ButtonProps{Text: "Cancel"})
-							}
-							<div class="relative inline-block">
-								@components.Button(components.ButtonProps{
-									Text:    "Delete",
-									Variant: components.ButtonVariantDestructive,
-									Attributes: templ.Attributes{
-										"hx-delete":       "/api/users/" + fmt.Sprint(user.ID),
-										"hx-target":       "#user-" + fmt.Sprint(user.ID),
-										"hx-swap":         "outerHTML",
-										"hx-disabled-elt": "this",
-										"hx-indicator":    "#delete-spinner-" + fmt.Sprint(user.ID),
-									},
-								})
-								<div
-									id={ "delete-spinner-" + fmt.Sprint(user.ID) }
-									class="htmx-indicator absolute inset-0 flex items-center justify-center bg-destructive/10 rounded-md pointer-events-none"
-								>
-									<svg class="animate-spin h-5 w-5 text-destructive" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-										<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-										<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-									</svg>
-								</div>
-							</div>
-						</div>
-					}
-				}
+					@LoadingIcon("delete-spinner-" + fmt.Sprint(user.ID))
+				</div>
 			</div>
+		}
+		// Only one modal for all users
+		@components.Modal(components.ModalProps{ID: "delete-confirmation-modal", Class: "max-w-md"}) {
+			@components.ModalHeader() {
+				<span>Delete <span x-text="currentUsername"></span></span>
+			}
+			@components.ModalBody() {
+				Are you sure you want to delete this user?
+			}
+			@components.ModalFooter() {
+				<div class="flex gap-2">
+					@components.ModalClose("delete-confirmation-modal") {
+						@components.Button(components.ButtonProps{Text: "Cancel"})
+					}
+					@components.Button(components.ButtonProps{
+						Text:    "Delete",
+						Variant: components.ButtonVariantDestructive,
+						Attributes: templ.Attributes{
+							"@click": "handleDelete",
+						},
+					})
+				</div>
+			}
 		}
 	</div>
 }
