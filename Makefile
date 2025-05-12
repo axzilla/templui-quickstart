@@ -1,5 +1,5 @@
-# Run templ generation in watch mode to detect all .templ files and 
-# re-create _templ.txt files on change, then send reload event to browser. 
+# Run templ generation in watch mode to detect all .templ files and
+# re-create _templ.txt files on change, then send reload event to browser.
 # Default url: http://localhost:7331
 templ:
 	templ generate --watch --proxy="http://localhost:8090" --open-browser=false -v
@@ -26,3 +26,6 @@ tailwind-watch:
 dev:
 	make tailwind-clean
 	make -j3 tailwind-watch templ server
+
+prepare-input-css:
+	@echo "@source \"$(shell go env GOPATH)/pkg/mod/github.com/axzilla/templui@*/**/*.{go,templ}\";" > ./assets/css/gopath.css

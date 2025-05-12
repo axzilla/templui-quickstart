@@ -5,3 +5,4 @@ bin
 node_modules
 tmp
 .env
+assets/css/gopath.css
