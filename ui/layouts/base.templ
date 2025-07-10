@@ -4,30 +4,6 @@ import (
 	"github.com/axzilla/templui-quickstart/ui/modules"
 )
 
-templ ThemeSwitcherScript() {
-	{{ handle := templ.NewOnceHandle() }}
-	@handle.Once() {
-		<script nonce={ templ.GetNonce(ctx) }>
-			// Initial theme setup
-			document.documentElement.classList.toggle('dark', localStorage.getItem('appTheme') === 'dark');
-
-			document.addEventListener('alpine:init', () => {
-				Alpine.data('themeHandler', () => ({
-					isDark: localStorage.getItem('appTheme') === 'dark',
-					themeClasses() {
-						return this.isDark ? 'text-white' : 'bg-white text-black'
-					},
-					toggleTheme() {
-						this.isDark = !this.isDark;
-						localStorage.setItem('appTheme', this.isDark ? 'dark' : 'light');
-						document.documentElement.classList.toggle('dark', this.isDark);
-					}
-				}))
-			})
-		</script>
-	}
-}
-
 templ BaseLayout() {
 	<!DOCTYPE html>
 	<html lang="en" class="h-full dark">
@@ -36,15 +12,8 @@ templ BaseLayout() {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<!-- Tailwind CSS (output) -->
 			<link href="/assets/css/output.css" rel="stylesheet"/>
-			<!-- Alpine.js -->
-			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-			<!-- Theme switcher script -->
-			@ThemeSwitcherScript()
 		</head>
-		<body
-			x-data="themeHandler"
-			x-bind:class="themeClasses"
-		>
+		<body>
 			@modules.Navbar()
 			{ children... }
 		</body>
