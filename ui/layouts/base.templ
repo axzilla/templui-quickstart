@@ -13,9 +13,13 @@ templ BaseLayout() {
 			<!-- Tailwind CSS (output) -->
 			<link href="/assets/css/output.css" rel="stylesheet"/>
 		</head>
-		<body>
-			@modules.Navbar()
-			{ children... }
+		<body class="h-full">
+			<div class="h-full flex flex-col">
+				@modules.Navbar()
+				<main class="flex-1">
+					{ children... }
+				</main>
+			</div>
 		</body>
 	</html>
 }

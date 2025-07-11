@@ -7,19 +7,20 @@ import (
 
 templ Landing() {
 	@layouts.BaseLayout() {
-		<div class="flex justify-center items-center min-h-screen">
-			<div class="flex flex-col gap-6 items-center justify-center px-4 w-full max-w-3xl py-16">
+		<div class="h-full flex justify-center items-center">
+			<div class="flex flex-col gap-4 items-center justify-center px-4 w-full max-w-2xl">
 				<div class="text-center space-y-4">
-					<h1 class="text-4xl font-bold">🚀 Welcome to templUI Quickstart</h1>
-					<p class="text-muted-foreground text-lg">
-						Your project is ready! ✨ Check out the documentation for guides and examples, 
-						or visit GitHub to stay up to date. Let's build something great! 🎨
+					<h1 class="text-5xl font-bold tracking-tight">templUI Quickstart</h1>
+					<p class="text-muted-foreground text-lg max-w-md mx-auto">
+						Build modern web applications with
+						<br/>
+						Go, Templ, and Tailwind CSS.
 					</p>
 				</div>
 				<div class="flex gap-3">
 					@button.Button(button.Props{
 						Variant: "default",
-						Href:    "https://templui.io",
+						Href:    "https://templui.io/docs/how-to-use",
 						Target:  "_blank",
 					}) {
 						Documentation
@@ -32,8 +33,8 @@ templ Landing() {
 						GitHub
 					}
 				</div>
-				<p class="text-sm text-muted-foreground mt-4">
-					Questions? Join our <a href="https://github.com/axzilla/templui/discussions" target="_blank" class="text-primary hover:underline">community discussions</a> 👋
+				<p class="text-sm text-muted-foreground">
+					<a href="https://github.com/axzilla/templui/discussions" target="_blank" class="text-primary hover:opacity-80 underline underline-offset-4">Join the community</a>
 				</p>
 			</div>
 		</div>
