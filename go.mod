@@ -1,4 +1,4 @@
-module github.com/axzilla/templui-quickstart
+module github.com/templui/templui-quickstart
 
 go 1.24.0
 

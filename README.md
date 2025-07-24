@@ -11,7 +11,7 @@ For installation instructions, visit our [documentation](https://templui.io/docs
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/axzilla/templui-quickstart.git
+   git clone https://github.com/templui/templui-quickstart.git
    cd templui-quickstart
    ```
 
@@ -47,7 +47,7 @@ Your application will be available at `http://localhost:8090`
 
 ## Contributing
 
-Issues and pull requests are welcome! Please read our [contributing guidelines](https://github.com/axzilla/templui/blob/main/CONTRIBUTING.md) before submitting a pull request.
+Issues and pull requests are welcome! Please read our [contributing guidelines](https://github.com/templui/templui/blob/main/CONTRIBUTING.md) before submitting a pull request.
 
 ## License
 
