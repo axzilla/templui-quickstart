@@ -19,7 +19,6 @@
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-gray-300: oklch(87.2% 0.01 258.338);
-    --color-white: #fff;
     --spacing: 0.25rem;
     --container-md: 28rem;
     --container-2xl: 42rem;
@@ -404,9 +403,6 @@
   }
   .text-secondary-foreground {
     color: var(--secondary-foreground);
-  }
-  .text-white {
-    color: var(--color-white);
   }
   .italic {
     font-style: italic;

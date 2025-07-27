@@ -1,4 +1,4 @@
-// templui component icon - version: v0.84.0 installed by templui v0.84.0
+// templui component icon - version: v0.85.0 installed by templui v0.85.0
 package icon
 // This file is auto generated
 // Using Lucide icons version 0.507.0
