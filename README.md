@@ -1,54 +1,37 @@
 # templUI Quickstart
 
-Get started with templUI, an enterprise-ready UI component library for Go and templ. This template provides a pre-configured setup for building professional web applications with templUI components.
+Get started with templUI components for Go + templ.
 
-## Installation
-
-For installation instructions, visit our [documentation](https://templui.io/docs/how-to-use#requirements).
-
-## Setup
-
-1. **Clone the Repository**
-
-   ```bash
-   git clone https://github.com/templui/templui-quickstart.git
-   cd templui-quickstart
-   ```
-
-2. **Install Dependencies**
-
-   ```bash
-   go mod tidy
-   ```
-
-## Development
-
-Start the development server with hot reload:
+## Quick Start
 
 ```bash
+git clone https://github.com/templui/templui-quickstart.git my-app
+cd my-app
 make dev
 ```
 
-Your application will be running at [http://localhost:7331](http://localhost:7331)
+Your app is now running at [http://localhost:7331](http://localhost:7331)
 
-## Deployment
-
-This template includes a production-ready Dockerfile for easy deployment:
+## Commands
 
 ```bash
-# Build the image
-docker build -t templui-app .
-
-# Run the container
-docker run -p 8090:8090 templui-app
+make dev          # Start development server
+make templ        # Watch templ files
+make server       # Run server only
 ```
 
-Your application will be available at `http://localhost:8090`
+## Production
 
-## Contributing
+```bash
+docker build -t my-app .
+docker run -p 8090:8090 my-app
+```
 
-Issues and pull requests are welcome! Please read our [contributing guidelines](https://github.com/templui/templui/blob/main/CONTRIBUTING.md) before submitting a pull request.
+## Documentation
+
+Visit [templui.io/docs](https://templui.io/docs) for component documentation.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT
+
